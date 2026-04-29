@@ -15,26 +15,35 @@ async function startServer() {
 
   // Logging middleware
   app.use((req, res, next) => {
-    console.log(`[REQ] ${req.method} ${req.url}`);
+    const start = Date.now();
+    res.on('finish', () => {
+      const duration = Date.now() - start;
+      console.log(`[REQ] ${req.method} ${req.url} - ${res.statusCode} (${duration}ms)`);
+    });
     next();
   });
 
-  // API Router
-  const apiRouter = express.Router();
-
-  apiRouter.get("/ping", (req, res) => {
-    console.log("[API] Ping reached");
-    res.json({ status: "ok", time: new Date().toISOString(), env: process.env.NODE_ENV });
+  // Health check
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok", time: new Date().toISOString() });
   });
 
-  apiRouter.post("/proxy/token", async (req, res) => {
-    console.log(`[API] Token Refresh Start: ${new Date().toISOString()}`);
+  app.get("/api/ping", (req, res) => {
+    console.log("[DEBUG] Ping Received");
+    res.json({ ok: true, pong: true });
+  });
+
+  // Proxy for Microsoft Token Refresh
+  app.post("/api/proxy/token", async (req, res) => {
+    console.log(`[DEBUG] Token Refresh request received`);
     try {
       const { client_id, refresh_token, grant_type } = req.body;
       if (!client_id || !refresh_token) {
+        console.warn("[DEBUG] Missing client_id or refresh_token");
         return res.status(400).json({ error: "Missing identity parameters" });
       }
 
+      console.log(`[DEBUG] Fetching token for ${client_id}`);
       const params = new URLSearchParams();
       params.append("client_id", client_id);
       params.append("refresh_token", refresh_token);
@@ -47,19 +56,23 @@ async function startServer() {
       });
 
       const data = await response.json();
-      console.log(`[API] Token Result Status: ${response.status}`);
+      console.log(`[DEBUG] Token status: ${response.status}`);
       res.status(response.status).json(data);
     } catch (error: any) {
-      console.error("[API] Token Error:", error);
+      console.error("[ERROR] Token Proxy failed:", error);
       res.status(500).json({ error: "Proxy failure", message: error.message });
     }
   });
 
-  apiRouter.get("/proxy/messages", async (req, res) => {
-    console.log(`[API] Messages Fetch Start: ${new Date().toISOString()}`);
+  // Proxy for Microsoft Graph API
+  app.get("/api/proxy/messages", async (req, res) => {
+    console.log(`[DEBUG] Messages request received`);
     try {
       const authHeader = req.headers.authorization;
-      if (!authHeader) return res.status(401).json({ error: "Unauthorized" });
+      if (!authHeader) {
+        console.warn("[DEBUG] Missing Authorization header");
+        return res.status(401).json({ error: "Unauthorized" });
+      }
 
       const graphUrl = "https://graph.microsoft.com/v1.0/me/messages?$top=10&$select=id,subject,bodyPreview,receivedDateTime,webLink,body&$orderby=receivedDateTime desc";
       const response = await fetch(graphUrl, {
@@ -68,21 +81,18 @@ async function startServer() {
       });
 
       const data = await response.json();
-      console.log(`[API] Messages Result Status: ${response.status}`);
+      console.log(`[DEBUG] Graph status: ${response.status}`);
       res.status(response.status).json(data);
     } catch (error: any) {
-      console.error("[API] Messages Error:", error);
+      console.error("[ERROR] Messages Proxy failed:", error);
       res.status(500).json({ error: "Graph failure", message: error.message });
     }
   });
 
-  // Mount API router
-  app.use("/api", apiRouter);
-
-  // API 404
-  app.all("/api/*", (req, res) => {
-    console.log(`[API] 404 Not Found: ${req.url}`);
-    res.status(404).json({ error: "Route not found", path: req.url });
+  // API 404 Handler
+  app.use("/api/*", (req, res) => {
+    console.log(`[DEBUG] 404 hit for ${req.url}`);
+    res.status(404).json({ error: "API Route Not Found", url: req.url });
   });
 
   // Vite / Static files
