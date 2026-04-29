@@ -413,6 +413,15 @@ export default function App() {
     setAccounts(prev => [...prev, ...newAccounts]);
   };
 
+  const handleClearAll = () => {
+    if (accounts.length === 0) return;
+    if (window.confirm("Are you sure you want to clear all accounts? This action cannot be undone.")) {
+      setAccounts([]);
+      setSelectedIds(new Set());
+      setLoadingIds(new Set());
+    }
+  };
+
   const handleFetchOtp = async (account: Account) => {
     setLoadingIds(prev => new Set(prev).add(account.id));
     updateAccountStatus(account.id, "Refreshing...");
@@ -592,6 +601,14 @@ export default function App() {
               >
                 <RefreshCw className={`w-4 h-4 ${loadingIds.size > 0 ? 'animate-spin' : ''}`} />
                 <span>Fetch All</span>
+              </button>
+              <button 
+                onClick={handleClearAll}
+                disabled={accounts.length === 0}
+                className="neo-button !py-3 !px-4 text-sm !bg-red-50 hover:!bg-red-100 !text-red-600 border-red-200 h-[46px]"
+                title="Clear all accounts"
+              >
+                <Trash2 className="w-4 h-4" />
               </button>
             </div>
           </div>
