@@ -1,0 +1,6 @@
+{
+  "name": "Pro OTP Receiver",
+  "description": "Secure Hotmail & Outlook OTP manager using Microsoft Graph API with inbox viewing and custom export capabilities.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
