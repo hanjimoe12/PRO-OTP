@@ -415,7 +415,7 @@ export default function App() {
 
   const handleClearAll = () => {
     if (accounts.length === 0) return;
-    if (window.confirm("Are you sure you want to clear all accounts? This action cannot be undone.")) {
+    if (window.confirm("Hapus semua akun? Tindakan ini tidak dapat dibatalkan.")) {
       setAccounts([]);
       setSelectedIds(new Set());
       setLoadingIds(new Set());
@@ -592,8 +592,16 @@ export default function App() {
                   placeholder="Search accounts..." 
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full bg-white border-2 border-slate-900 rounded-xl pl-10 pr-4 py-3 text-sm font-bold shadow-[2px_2px_0px_rgba(15,23,42,1)] focus:translate-y-[1px] focus:translate-x-[1px] focus:shadow-none transition-all outline-none"
+                  className="w-full bg-white border-2 border-slate-900 rounded-xl pl-10 pr-10 py-3 text-sm font-bold shadow-[2px_2px_0px_rgba(15,23,42,1)] focus:translate-y-[1px] focus:translate-x-[1px] focus:shadow-none transition-all outline-none"
                 />
+                {search && (
+                  <button 
+                    onClick={() => setSearch("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 rounded-full text-slate-400"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
               <button 
                 onClick={handleFetchAll} 
@@ -605,10 +613,11 @@ export default function App() {
               <button 
                 onClick={handleClearAll}
                 disabled={accounts.length === 0}
-                className="neo-button !py-3 !px-4 text-sm !bg-red-50 hover:!bg-red-100 !text-red-600 border-red-200 h-[46px]"
+                className="neo-button !py-3 !px-4 text-sm !bg-red-50 hover:!bg-red-100 !text-red-600 border-red-200 h-[46px] flex items-center gap-2"
                 title="Clear all accounts"
               >
                 <Trash2 className="w-4 h-4" />
+                <span>Clear All</span>
               </button>
             </div>
           </div>
