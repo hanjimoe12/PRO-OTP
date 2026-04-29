@@ -379,6 +379,13 @@ export default function App() {
     localStorage.setItem('accounts_v1', JSON.stringify(accounts));
   }, [accounts]);
 
+  useEffect(() => {
+    fetch("/api/ping")
+      .then(res => res.json())
+      .then(data => console.log("[SERVER] Connected:", data))
+      .catch(err => console.error("[SERVER] Connection Failed:", err));
+  }, []);
+
   const filteredAccounts = useMemo(() => {
     if (!search) return accounts;
     return accounts.filter(acc => 
@@ -485,9 +492,15 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans selection:bg-[#c1fcda] selection:text-slate-900 flex flex-col overflow-x-hidden">
+      {/* Grid Backgrounds */}
+      <div className="fixed inset-0 pointer-events-none opacity-[0.4]" 
+           style={{ backgroundImage: 'linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+      <div className="fixed inset-0 pointer-events-none opacity-[0.03]" 
+           style={{ backgroundImage: 'radial-gradient(#0f172a 2px, transparent 2px)', backgroundSize: '20px 20px' }} />
+      
       {/* Navigation Bar */}
-      <nav className="bg-[#f4f7f5]/80 backdrop-blur-md border-b-2 border-slate-900 sticky top-0 z-50">
+      <nav className="bg-[#f8fafc]/80 backdrop-blur-md border-b-2 border-slate-900 sticky top-0 z-50">
         <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 flex items-center justify-center border-2 border-slate-900 rounded-lg bg-[#c1fcda] rotate-[-10deg]">
