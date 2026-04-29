@@ -11,39 +11,39 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // 1. RAW API ROUTES (BEFORE ANY MIDDLEWARE)
+  app.get("/api/ping", (req, res) => {
+    console.log("[DEBUG] Ping hit at top level");
+    res.json({ ok: true, source: "top-level" });
+  });
+
   app.use(express.json());
 
-  // Logging middleware
+  // 2. Logging middleware
   app.use((req, res, next) => {
-    const start = Date.now();
-    res.on('finish', () => {
-      const duration = Date.now() - start;
-      console.log(`[REQ] ${req.method} ${req.url} - ${res.statusCode} (${duration}ms)`);
-    });
+    if (req.url.startsWith("/api")) {
+      console.log(`[EARLY API CHECK] ${req.method} ${req.url}`);
+    }
+    console.log(`[REQ] ${req.method} ${req.url}`);
     next();
   });
 
-  // Health check
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", time: new Date().toISOString() });
-  });
+  // API Router
+  const api = express.Router();
 
-  app.get("/api/ping", (req, res) => {
-    console.log("[DEBUG] Ping Received");
-    res.json({ ok: true, pong: true });
+  api.get("/health", (req, res) => {
+    res.json({ status: "ok" });
   });
 
   // Proxy for Microsoft Token Refresh
-  app.post("/api/proxy/token", async (req, res) => {
-    console.log(`[DEBUG] Token Refresh request received`);
+  api.post("/proxy/token", async (req, res) => {
+    console.log("[API] Token proxy request");
     try {
       const { client_id, refresh_token, grant_type } = req.body;
       if (!client_id || !refresh_token) {
-        console.warn("[DEBUG] Missing client_id or refresh_token");
-        return res.status(400).json({ error: "Missing identity parameters" });
+        return res.status(400).json({ error: "Missing client_id or refresh_token" });
       }
 
-      console.log(`[DEBUG] Fetching token for ${client_id}`);
       const params = new URLSearchParams();
       params.append("client_id", client_id);
       params.append("refresh_token", refresh_token);
@@ -56,21 +56,19 @@ async function startServer() {
       });
 
       const data = await response.json();
-      console.log(`[DEBUG] Token status: ${response.status}`);
       res.status(response.status).json(data);
     } catch (error: any) {
-      console.error("[ERROR] Token Proxy failed:", error);
-      res.status(500).json({ error: "Proxy failure", message: error.message });
+      console.error("[API ERROR] Token Proxy:", error);
+      res.status(500).json({ error: "Internal Server Error", details: error.message });
     }
   });
 
   // Proxy for Microsoft Graph API
-  app.get("/api/proxy/messages", async (req, res) => {
-    console.log(`[DEBUG] Messages request received`);
+  api.get("/proxy/messages", async (req, res) => {
+    console.log("[API] Messages proxy request");
     try {
       const authHeader = req.headers.authorization;
       if (!authHeader) {
-        console.warn("[DEBUG] Missing Authorization header");
         return res.status(401).json({ error: "Unauthorized" });
       }
 
@@ -81,30 +79,32 @@ async function startServer() {
       });
 
       const data = await response.json();
-      console.log(`[DEBUG] Graph status: ${response.status}`);
       res.status(response.status).json(data);
     } catch (error: any) {
-      console.error("[ERROR] Messages Proxy failed:", error);
-      res.status(500).json({ error: "Graph failure", message: error.message });
+      console.error("[API ERROR] Messages Proxy:", error);
+      res.status(500).json({ error: "Internal Server Error", details: error.message });
     }
   });
 
-  // API 404 Handler
-  app.use("/api/*", (req, res) => {
-    console.log(`[DEBUG] 404 hit for ${req.url}`);
-    res.status(404).json({ error: "API Route Not Found", url: req.url });
+  // API 404 - anything starting with /api/ that didn't match above
+  api.all("*", (req, res) => {
+    console.log(`[API 404] ${req.method} ${req.url}`);
+    res.status(404).json({ error: "API Route Not Found", path: req.originalUrl });
   });
 
-  // Vite / Static files
+  // Mount API router
+  app.use("/api", api);
+
+  // Frontend Serving
   if (process.env.NODE_ENV !== "production") {
-    console.log("[SYSTEM] Starting in DEVELOPMENT mode (Vite)");
+    console.log("[SYSTEM] Initializing Vite middleware");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
   } else {
-    console.log("[SYSTEM] Starting in PRODUCTION mode (Static)");
+    console.log("[SYSTEM] Serving static files from dist/");
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
@@ -112,17 +112,12 @@ async function startServer() {
     });
   }
 
-  app.listen(Number(PORT), "0.0.0.0", () => {
-    console.log(`[SYSTEM] Server active on port ${PORT}`);
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`[SYSTEM] Server listening at http://0.0.0.0:${PORT}`);
   });
 }
 
-process.on('uncaughtException', (err) => {
-  console.error('[CRITICAL] Uncaught Exception:', err);
+startServer().catch(err => {
+  console.error("[SYSTEM FATAL] Failed to start server:", err);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('[CRITICAL] Unhandled Rejection at:', promise, 'reason:', reason);
-});
-
-startServer();
