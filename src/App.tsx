@@ -500,173 +500,193 @@ export default function App() {
 
       <div className="max-w-[1400px] mx-auto px-6 py-12 flex-1 w-full space-y-24">
         {/* Header/Hero Section */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start shrink-0">
-          <div className="space-y-6">
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch shrink-0">
+          <div className="space-y-6 flex flex-col justify-center">
             <div className="text-emerald-600 font-bold text-sm tracking-widest uppercase">// IDENTITY INFRASTRUCTURE</div>
-            <h1 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.9]">
+            <h1 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.9] text-balance">
               Identity at <span className="text-emerald-500">Scale.</span>
             </h1>
             <p className="text-slate-500 text-lg font-medium max-w-sm leading-relaxed">
               High-entropy Microsoft accounts. Aged, warmed, and ready for deployment. Restocked every 30 seconds.
             </p>
             <div className="flex flex-wrap gap-4 pt-4">
-              <button onClick={() => setShowImport(true)} className="neo-button !bg-[#c1fcda]">
-                Initialize Import
+              <button 
+                onClick={() => setShowImport(true)} 
+                className="neo-button !bg-[#c1fcda] py-4 px-8"
+              >
+                Initialize Purchase
               </button>
-              <button disabled={accounts.length === 0} onClick={() => setShowExport(true)} className="neo-button-secondary">
+              <button 
+                disabled={accounts.length === 0} 
+                onClick={() => setShowExport(true)} 
+                className="neo-button-secondary py-4 px-8"
+              >
                 Check Status
               </button>
             </div>
           </div>
 
-          <div className="bg-white neo-border rounded-xl p-6 h-full flex flex-col min-h-[240px]">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">LIVE FEED — PRO-OTP NETWORK</span>
+          <div className="bg-white neo-border rounded-xl p-8 flex flex-col min-h-[300px]">
+            <div className="flex items-center gap-2 mb-8">
+              <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">LIVE FEED — PRO-OTP NETWORK</span>
             </div>
-            <div className="flex-1 font-mono text-[11px] space-y-3">
+            <div className="flex-1 font-mono text-xs space-y-4">
                {[
-                 "User 346... imported 1x Hotmail_Trusted",
+                 "User 346... purchased 1x Hotmail_Trusted",
                  "Health check: All endpoints nominal",
-                 "User 546... fetched 493x Outlook_Auth",
-                 `System: ${accounts.length} accounts currently in queue`,
-                 "Token proxy: status=200 ok"
+                 "User 546... purchased 493x Hotmail_Trusted",
+                 "User 910... purchased 11x Outlook",
+                 "User 638... purchased 10x Outlook",
                ].map((log, i) => (
-                 <div key={i} className="flex gap-2 text-slate-600">
-                    <span className="text-slate-400">›</span>
-                    <span>{log}</span>
+                 <div key={i} className="flex gap-3 text-slate-700 items-start">
+                    <span className="text-slate-400 font-bold">›</span>
+                    <span className="font-medium">{log}</span>
                  </div>
                ))}
-               <div className="w-2 h-4 bg-slate-900 animate-pulse inline-block align-middle ml-1" />
+               <div className="w-2 h-5 bg-slate-900 animate-pulse inline-block align-middle ml-1" />
             </div>
           </div>
         </section>
 
         {/* Main Content: Accounts Management */}
-        <section className="space-y-8 pb-12">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-white neo-border rounded-lg flex items-center justify-center">
-                <Inbox className="w-5 h-5 text-slate-900" />
+        <section className="space-y-8 pb-20">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <div className="w-14 h-14 bg-white neo-border rounded-xl flex items-center justify-center shadow-[4px_4px_0px_rgba(15,23,42,1)]">
+                <Inbox className="w-6 h-6 text-slate-900" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-slate-900">Account Stock</h2>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Real-time mail management from API</p>
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Account Stock</h2>
+                <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Real-time mail management from API</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="relative w-64 hidden md:block">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <div className="flex items-center gap-4 w-full md:w-auto">
+              <div className="relative flex-1 md:w-80">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input 
                   type="text" 
                   placeholder="Search accounts..." 
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full bg-white border-2 border-slate-900 rounded-lg pl-9 pr-4 py-2 text-sm font-bold shadow-[2px_2px_0px_rgba(15,23,42,1)] focus:translate-y-[1px] focus:translate-x-[1px] focus:shadow-none transition-all outline-none"
+                  className="w-full bg-white border-2 border-slate-900 rounded-xl pl-10 pr-4 py-3 text-sm font-bold shadow-[2px_2px_0px_rgba(15,23,42,1)] focus:translate-y-[1px] focus:translate-x-[1px] focus:shadow-none transition-all outline-none"
                 />
               </div>
-              <button onClick={handleFetchAll} className="neo-button !py-2 !px-4 text-sm !bg-[#c1fcda]">
+              <button 
+                onClick={handleFetchAll} 
+                className="neo-button !py-3 !px-6 text-sm !bg-[#c1fcda] h-[46px]"
+              >
                 <RefreshCw className={`w-4 h-4 ${loadingIds.size > 0 ? 'animate-spin' : ''}`} />
-                {selectedIds.size > 0 ? `Fetch ${selectedIds.size}` : 'Fetch All'}
+                <span>Fetch All</span>
               </button>
             </div>
           </div>
 
-          <div className="bg-white neo-border rounded-2xl overflow-hidden">
+          <div className="bg-white neo-border rounded-2xl overflow-hidden shadow-[6px_6px_0px_rgba(15,23,42,1)]">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b-2 border-slate-900 bg-slate-50">
-                  <th className="p-4 w-12">
+                <tr className="border-b-2 border-slate-900 bg-slate-50/50">
+                  <th className="p-6 w-16">
                      <button 
                        onClick={toggleSelectAll}
-                       className={`w-5 h-5 rounded flex items-center justify-center transition-colors border-2 border-slate-900 ${selectedIds.size === filteredAccounts.length && filteredAccounts.length > 0 ? 'bg-emerald-400' : 'bg-white'}`}
+                       className={`w-6 h-6 rounded-md flex items-center justify-center transition-all border-2 border-slate-900 shadow-[1px_1px_0px_rgba(15,23,42,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] ${selectedIds.size === filteredAccounts.length && filteredAccounts.length > 0 ? 'bg-emerald-400' : 'bg-white'}`}
                      >
-                       {selectedIds.size === filteredAccounts.length && filteredAccounts.length > 0 && <Check className="w-3 h-3 text-slate-900 stroke-[3]" />}
+                       {selectedIds.size === filteredAccounts.length && filteredAccounts.length > 0 && <Check className="w-4 h-4 text-slate-900 stroke-[4]" />}
                      </button>
                   </th>
-                  <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Mail Type / Details</th>
-                  <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                  <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">OTP Response</th>
-                  <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>
+                  <th className="p-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Mail Type / Details</th>
+                  <th className="p-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
+                  <th className="p-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">OTP Response</th>
+                  <th className="p-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-slate-100">
                 {filteredAccounts.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-24 text-center">
-                       <div className="flex flex-col items-center gap-4">
-                          <Inbox className="w-16 h-16 text-slate-200" />
-                          <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">No accounts in stock</p>
-                          <button onClick={() => setShowImport(true)} className="text-emerald-500 font-bold hover:underline">Import Accounts &rarr;</button>
+                    <td colSpan={5} className="py-32 text-center bg-slate-50/30">
+                       <div className="flex flex-col items-center gap-6">
+                          <div className="w-20 h-20 bg-white neo-border rounded-2xl flex items-center justify-center rotate-12">
+                            <Inbox className="w-10 h-10 text-slate-200" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-slate-400 font-black uppercase tracking-[0.2em] text-sm">No accounts in stock</p>
+                            <button onClick={() => setShowImport(true)} className="text-emerald-500 font-black text-sm uppercase items-center gap-2 hover:underline inline-flex">
+                              Import Accounts &rarr;
+                            </button>
+                          </div>
                        </div>
                     </td>
                   </tr>
                 ) : (
                   filteredAccounts.map((account) => (
-                    <tr key={account.id} className={`group hover:bg-slate-50/50 transition-colors ${selectedIds.has(account.id) ? 'bg-[#c1fcda]/10' : ''}`}>
-                      <td className="p-5">
+                    <tr key={account.id} className={`group hover:bg-slate-50/50 transition-colors ${selectedIds.has(account.id) ? 'bg-[#c1fcda]/20' : ''}`}>
+                      <td className="p-6">
                          <button 
                           onClick={() => toggleSelect(account.id)}
-                          className={`w-5 h-5 rounded flex items-center justify-center transition-all border-2 border-slate-900 ${selectedIds.has(account.id) ? 'bg-emerald-400' : 'bg-white'}`}
+                          className={`w-6 h-6 rounded-md flex items-center justify-center transition-all border-2 border-slate-900 shadow-[1px_1px_0px_rgba(15,23,42,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] ${selectedIds.has(account.id) ? 'bg-emerald-400' : 'bg-white'}`}
                         >
-                          {selectedIds.has(account.id) && <Check className="w-3 h-3 text-slate-900 stroke-[3]" />}
+                          {selectedIds.has(account.id) && <Check className="w-4 h-4 text-slate-900 stroke-[4]" />}
                         </button>
                       </td>
-                      <td className="p-5">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-white border-2 border-slate-900 rounded-lg flex items-center justify-center">
-                            <Mail className="w-5 h-5 text-slate-900" />
+                      <td className="p-6">
+                        <div className="flex items-center gap-5">
+                          <div className="w-12 h-12 bg-white border-2 border-slate-900 rounded-xl flex items-center justify-center shadow-[3px_3px_0px_rgba(15,23,42,1)] group-hover:bg-[#c1fcda] transition-colors">
+                            <Mail className="w-6 h-6 text-slate-900" />
                           </div>
                           <div>
-                            <div className="font-bold text-slate-900 flex items-center gap-2">
+                            <div className="font-bold text-slate-900 flex items-center gap-3">
                               {account.email}
-                              <button onClick={() => copyToClipboard(account.email)} className="opacity-0 group-hover:opacity-100 transition-opacity"><Copy className="w-3 h-3" /></button>
+                              <button onClick={() => copyToClipboard(account.email)} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-slate-200 rounded-md"><Copy className="w-3 h-3" /></button>
                             </div>
-                            <div className="text-xs font-mono text-slate-400">{account.password}</div>
+                            <div className="text-[11px] font-bold text-slate-400 tracking-wider font-mono mt-0.5">{account.password}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="p-5">
-                        <div className="flex flex-col gap-1">
+                      <td className="p-6">
+                        <div className="flex flex-col gap-1.5">
                           <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${account.status === 'Success' ? 'bg-emerald-500' : account.status.startsWith('Err') ? 'bg-red-500' : 'bg-blue-500'}`} />
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{account.status}</span>
+                            <div className={`w-2.5 h-2.5 rounded-full border border-slate-900 ${account.status === 'Success' ? 'bg-emerald-500' : account.status.startsWith('Err') ? 'bg-red-500' : 'bg-blue-500 animate-pulse'}`} />
+                            <span className={`text-[10px] font-black uppercase tracking-widest ${account.status === 'Success' ? 'text-emerald-600' : account.status.startsWith('Err') ? 'text-red-500' : 'text-blue-500'}`}>
+                              {account.status}
+                            </span>
                           </div>
-                          {account.lastChecked && <div className="text-[10px] font-bold text-slate-300 ml-4">{account.lastChecked}</div>}
+                          {account.lastChecked && <div className="text-[10px] font-bold text-slate-400 ml-4.5">{account.lastChecked}</div>}
                         </div>
                       </td>
-                      <td className="p-5">
+                      <td className="p-6">
                          {loadingIds.has(account.id) ? (
-                           <div className="h-10 flex items-center gap-2 px-4 bg-slate-50 border-2 border-slate-900 rounded-lg font-bold text-slate-400 text-sm">
+                           <div className="h-11 flex items-center gap-2 px-5 bg-slate-50 border-2 border-slate-900 rounded-xl font-black text-slate-400 text-[11px] uppercase tracking-widest">
                              <RefreshCw className="w-4 h-4 animate-spin" /> FETCHING...
                            </div>
                          ) : account.latestOtp ? (
                            <button 
                              onClick={() => copyToClipboard(account.latestOtp)}
-                             className="h-10 flex items-center gap-3 px-4 bg-[#c1fcda] border-2 border-slate-900 rounded-lg font-black text-slate-900 text-lg tracking-widest shadow-[2px_2px_0px_rgba(15,23,42,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                             className="h-11 flex items-center gap-4 px-5 bg-[#c1fcda] border-2 border-slate-900 rounded-xl font-black text-slate-900 text-xl tracking-[0.2em] shadow-[3px_3px_0px_rgba(15,23,42,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
                            >
-                             {account.latestOtp} <Copy className="w-4 h-4 opacity-50" />
+                             {account.latestOtp} <Copy className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
                            </button>
                          ) : (
-                           <div className="h-10 flex items-center px-4 bg-slate-50 border-2 border-slate-900 rounded-lg font-bold text-slate-300 text-xs uppercase italic tracking-widest">
-                             Pending
+                           <div className="h-11 flex items-center px-5 bg-slate-50 border-2 border-slate-100 rounded-xl font-black text-slate-200 text-[11px] uppercase italic tracking-[0.2em]">
+                             PENDING
                            </div>
                          )}
                       </td>
-                      <td className="p-5 text-right w-32">
-                         <div className="flex items-center justify-end gap-2">
+                      <td className="p-6 text-right w-40">
+                         <div className="flex items-center justify-end gap-3">
                             <button 
                               onClick={() => setActiveAccountForInbox(account)}
-                              className="w-10 h-10 flex items-center justify-center bg-white border-2 border-slate-900 rounded-lg shadow-[2px_2px_0px_rgba(15,23,42,1)] hover:bg-[#c1fcda] transition-all"
+                              className="w-12 h-12 flex items-center justify-center bg-white border-2 border-slate-900 rounded-xl shadow-[3px_3px_0px_rgba(15,23,42,1)] hover:bg-[#c1fcda] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                              title="Open Inbox"
                             >
-                               <Inbox className="w-5 h-5 text-slate-900" />
+                               <Inbox className="w-6 h-6 text-slate-900" />
                             </button>
                             <button 
                               onClick={() => handleFetchOtp(account)}
-                              className="w-10 h-10 flex items-center justify-center bg-white border-2 border-slate-900 rounded-lg shadow-[2px_2px_0px_rgba(15,23,42,1)] hover:bg-slate-50 transition-all"
+                              className="w-12 h-12 flex items-center justify-center bg-white border-2 border-slate-900 rounded-xl shadow-[3px_3px_0px_rgba(15,23,42,1)] hover:bg-slate-50 transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                              title="Fast Refresh"
                             >
-                               <RefreshCw className="w-5 h-5 text-slate-900" />
+                               <RefreshCw className="w-6 h-6 text-slate-900" />
                             </button>
                          </div>
                       </td>

@@ -2,7 +2,6 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
-import fetch from "node-fetch";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,12 +12,19 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Logging middleware
+  app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+  });
+
   // API Routes
   
   // Proxy for Microsoft Token Refresh
   app.post("/api/proxy/token", async (req, res) => {
     try {
       const { client_id, refresh_token, grant_type } = req.body;
+      console.log(`Attempting token refresh for client_id: ${client_id}`);
       
       const params = new URLSearchParams();
       params.append("client_id", client_id);
@@ -34,6 +40,7 @@ async function startServer() {
       });
 
       const data = await response.json();
+      console.log(`Token refresh response status: ${response.status}`);
       res.status(response.status).json(data);
     } catch (error: any) {
       console.error("Token Proxy Error:", error);
@@ -49,6 +56,7 @@ async function startServer() {
         return res.status(401).json({ error: "Missing Authorization header" });
       }
 
+      console.log("Fetching messages from Graph API...");
       const graphUrl = "https://graph.microsoft.com/v1.0/me/messages?$top=10&$select=id,subject,bodyPreview,receivedDateTime,webLink,body&$orderby=receivedDateTime desc";
       
       const response = await fetch(graphUrl, {
@@ -60,6 +68,7 @@ async function startServer() {
       });
 
       const data = await response.json();
+      console.log(`Graph API response status: ${response.status}`);
       res.status(response.status).json(data);
     } catch (error: any) {
       console.error("Graph Proxy Error:", error);
